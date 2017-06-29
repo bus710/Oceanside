@@ -1,2 +1,3 @@
 # gombed
-A project with Golang and MBED.
+A telemetry prototyping project based on Golang and MBED.
+
