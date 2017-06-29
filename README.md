@@ -2,11 +2,11 @@
 A telemetry prototyping project based on Golang and MBED.
 
 ## Contents
-- Kicad
+- Kicad (schematic, PCB, BOM)
 - Draftsight
-- MBED
-- Odroid
-- Golang
+- MBED (dev env, code, debug)
+- Odroid (install, run, code)
+- Golang (install, code, libs, run)
 - ROS + bridge
 - Unity3D
 - Jupyter
