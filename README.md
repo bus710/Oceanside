@@ -52,7 +52,7 @@ This section explains how to install the realted tools and develop the actual MB
 
 ### Clients
 
-This sections consists of 3 sub sections for the different clients by using Jupyter notebook for researchers, Unity3D for XR developers, and ROS for robotists.
+This section consists of 3 sub sections for the different clients by using Jupyter notebook for researchers, Unity3D for XR developers, and ROS for robotists.
 
 #### Jupyter
 
