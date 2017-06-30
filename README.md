@@ -32,7 +32,7 @@ Nowadays, Embedded Engineers are not only requested to develop realtime embedded
 
 Here I share a simple and comprehensive project about the way I tried to make a combination of Golang and MBED OS 5 so that readers can utilize it to build your own telemetry project. The following sections are linked to sub documents to explain the detail of each steps to build sub modules to make our eventual application, which would work seamlessly.
 
-<img src="image/1.jpg" alt="A prototype of this project" style="width: 200px;"/>
+<img src="image/1.jpg" alt="A prototype of this project" style="width: 100px;"/>
 
 **In writing this guide there is an assumption that the reader is well experienced about Linux. In fact, all the step will be done in both Desktop (Mint 18) and ARM aarch64 server (Ubuntu 16.04.2).**
 
