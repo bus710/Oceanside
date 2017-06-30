@@ -1,1 +1,1 @@
-[Back to main](../Readme.md#hardware)
+[Back to main](../README.md#hardware)
