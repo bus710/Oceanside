@@ -51,9 +51,9 @@ This section explains how to install the realted tools and develop the actual MB
 
 This section consists of 3 sub sections for the different clients by using Jupyter notebook for researchers, Unity3D for XR developers, and ROS for robotists.
 
-[Jupyter](md/04_jupyter.md) is well known Opensource project among data scientists. GOMBED system opens WebSocket so that Jupyter's may have interactive widget, which show realtime graph to minotor data in realtime.   
+[Jupyter](md/04_jupyter.md) is well known Opensource project among data scientists. GOMBED system opens WebSocket so that Jupyter's may have interactive widget, which show realtime graph to monitor data in realtime.   
 
-[Unity3D](md/05_unity3d.md) is well known Commercial project and it has very easy way to communicate via WebSocket so that Unity developers, who want to read sensor data to make realistic XR contents, may leverage GOMBED project.
+[Unity3D](md/05_unity3d.md) is well known a commercial software and it has very easy way to communicate via WebSocket so that Unity developers, who want to read sensor data to make realistic XR contents, may leverage GOMBED project.
 
 [ROS](md/06_ros.md) is de facto middleware for robotists. Some robot may need enviromental data from infrastructure so that GOMBED can prepare the data and share with ROS based system. 
 
