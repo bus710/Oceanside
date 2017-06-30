@@ -20,9 +20,6 @@ This project shows developing a certain computer system. Please be aware that th
 - [Firmware](#firmware)
 - [Server](#server)
 - [Clients](#clients)
-    - [Jupyter](#jupyter)
-    - [Unity3D](#unity3d)
-    - [ROS](#ros)
 - [Deploy](#deploy)
 - [Reference](#reference)
 
