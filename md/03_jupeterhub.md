@@ -25,12 +25,12 @@ sudo pip3 install jupyter jupyterhub
 
 ### install required packages
 ```
-sudo pip3 install serial
+sudo pip3 install pyserial
 ```
 
 ### add an user
 ```
-adduser jupyter-user
+sudo adduser jupyter-user dialout
 ```
 
 ### add jupyterhub as a system service

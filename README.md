@@ -43,7 +43,7 @@ This section explains how to install the realted tools and develop the actual MB
 
 ## Jupyter
 
-[How to connect jupyter notebooks and MBED](md/03_jupyter.md): This section explains how to install the related tools and develop jupyter notebook. 
+[How to connect jupyter notebooks and MBED](md/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
 
 ## Reference
 
