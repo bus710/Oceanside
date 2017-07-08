@@ -1,0 +1,109 @@
+EESchema Schematic File Version 2
+LIBS:main-rescue
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:stm32
+LIBS:oceanside_components
+LIBS:main-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 5
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Sheet
+S 4950 1650 2000 950 
+U 59162AA2
+F0 "SUB_F446" 60
+F1 "SUB_F446.sch" 60
+F2 "STM_RD1" I L 4950 2350 60 
+F3 "STM_RD0" I L 4950 2250 60 
+F4 "STM_UART1_TX" I L 4950 1850 60 
+F5 "STM_UART1_RX" I L 4950 1950 60 
+F6 "STM_RS485_EN" I R 6950 1850 60 
+F7 "STM_RS485_TX" I R 6950 1950 60 
+F8 "STM_RS485_RX" I R 6950 2050 60 
+F9 "STM_CAN2_RX" I R 6950 2300 60 
+F10 "STM_CAN2_TX" I R 6950 2200 60 
+$EndSheet
+Wire Wire Line
+	3550 2250 4950 2250
+Wire Wire Line
+	4950 2350 3550 2350
+Wire Wire Line
+	3550 1850 4950 1850
+Wire Wire Line
+	4950 1950 3550 1950
+$Sheet
+S 4950 3350 1950 1300
+U 593E5034
+F0 "SUB_POWER" 60
+F1 "SUB_POWER.sch" 60
+$EndSheet
+Wire Wire Line
+	6950 1850 8400 1850
+Wire Wire Line
+	8400 1950 6950 1950
+Wire Wire Line
+	6950 2050 8400 2050
+Wire Wire Line
+	6950 2300 8400 2300
+Wire Wire Line
+	8400 2200 6950 2200
+$Sheet
+S 2150 1650 1400 950 
+U 593BF474
+F0 "SUB_SBC3" 60
+F1 "SUB_SBC.sch" 60
+F2 "SBC_RD0" I R 3550 2250 60 
+F3 "SBC_RD1" I R 3550 2350 60 
+F4 "SBC_UART_TXD0" I R 3550 1950 60 
+F5 "SBC_UART_RXD0" I R 3550 1850 60 
+$EndSheet
+$Sheet
+S 8400 1650 1050 950 
+U 593F3C57
+F0 "SUB_PERIS" 60
+F1 "SUB_PERIS.sch" 60
+F2 "STM_RS485_EN" I L 8400 1850 60 
+F3 "STM_RS485_RX" I L 8400 2050 60 
+F4 "STM_RS485_TX" I L 8400 1950 60 
+F5 "STM_CAN2_TX" I L 8400 2200 60 
+F6 "STM_CAN2_RX" I L 8400 2300 60 
+$EndSheet
+$EndSCHEMATC

@@ -4,3 +4,7 @@
 *.so
 *.dylib
 
+
+20_fw/oceanside-fw-v1/.dep
+20_fw/oceanside-fw-v1/build
+20_fw/oceanside-fw-v1/debug
