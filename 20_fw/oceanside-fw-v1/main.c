@@ -34,6 +34,42 @@ static THD_FUNCTION(Thread1, arg) {
   }
 }
 
+
+static void txend1(UARTDriver *uartp){
+  (void)uartp;
+}
+
+static void txend2(UARTDriver *uartp){
+  (void)uartp;
+}
+
+static void rxerr(UARTDriver *uartp, uartflags_t e){
+  (void)uartp;
+  (void)e;
+}
+
+static void rxchar(UARTDriver *uartp, uint16_t c){
+  (void)uartp;
+  (void)c;
+}
+
+static void rxend(UARTDriver *uartp){
+  (void)uartp;
+}
+
+static UARTConfig uart_cfg_1 = {
+  txend1,
+  txend2,
+  rxend,
+  rxchar,
+  rxerr,
+  115200,
+  0,
+  USART_CR2_LINEN,
+  0
+};
+
+
 /*
  * Application entry point.
  */
@@ -59,6 +95,14 @@ int main(void) {
    */
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
+  palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // UART TX
+  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7)); // UART RX
+
+	uartStart(&UARTD1, &uart_cfg_1);
+
+	char message = 'a';
+
+
   /*
    * Normal main() thread activity, in this demo it does nothing except
    * sleeping in a loop and check the button state.
@@ -66,6 +110,7 @@ int main(void) {
   while (true) {
 //    if (!palReadPad(GPIOC, GPIOC_BUTTON))
 //      test_execute((BaseSequentialStream *)&SD2);
+	  uartStartSend(&UARTD1, 1, &message);
     chThdSleepMilliseconds(500);
   }
 }
