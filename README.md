@@ -1,8 +1,8 @@
-# gombed
+# Oceanside
 
-This repository explains that how I have developed a prototype telemetry project based on the famous data science platform "Jupyter (hub)" and a RTOS "MBED OS 5" (from ARM).  
+This repository explains that how I have developed a prototype telemetry project based on the famous data science computing platform "Jupyter (hub)" and a RTOS "ChibiOS".  
   
-본 프로젝트는 이미 널리 알려진 데이터 사이언스 플랫폼인 Jupyter (hub)와 ARM에서 제공하는 RTOS인 MBED OS 5를 이용하여 프로토타입 원격 제어계측 프로젝트를 개발하는 내용을 담고 있습니다. 
+본 프로젝트는 이미 널리 알려진 데이터 사이언스 플랫폼인 Jupyter (hub)와 ARM Cortex 기반 RTOS인 ChibiOS를 이용하여 프로토타입 원격 제어계측 프로젝트를 개발하는 내용을 담고 있습니다. 
 
 ## Maintainer
   
@@ -17,7 +17,7 @@ This project shows developing a certain computer system. Please be aware that th
 ## Table of Contents
 - [Summary](#summary)
 - [Hardware](#hardware)
-- [MBED](#mbed)
+- [ChibiOS](#chibios)
 - [Jupyter](#jupyter)
 - [Reference](#reference)
 
@@ -38,8 +38,8 @@ This section explains how to get/make the required hardware. Kicad and Draftsigh
 
 ## MBED
 
-[How to develop MBED project](md/02_mbed.md):
-This section explains how to install the realted tools and develop the actual MBED OS 5 based realtime firmware.  
+[How to develop ChibiOS project](md/02_chibios.md):
+This section explains how to install the realted tools and develop the actual ChibiOS based realtime firmware.  
 
 ## Jupyter
 
