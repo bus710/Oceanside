@@ -43,7 +43,7 @@ This section explains how to install the realted tools and develop the actual Ch
 
 ## Jupyter
 
-[How to connect jupyter notebooks and MBED](00_doc/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
+[How to connect Jupyter notebooks and ChibiOS](00_doc/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
 
 ## Reference
 
