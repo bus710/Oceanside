@@ -25,7 +25,7 @@ This project shows developing a certain computer system. Please be aware that th
 
 Nowadays, Embedded Engineers are not only requested to develop realtime embedded software but also requested to develop data analysis system to monitor realtime data. In order to satisfy the needs, having rapid prototyping tools might be helpful to show the proof of the concept in your idea note. 
 
-Here I share a simple project about the way I tried to make a combination of Jupyter and MBED OS 5 so that readers can utilize it to build your own telemetry project. The following sections are linked to sub documents to explain the detail of each steps to build sub modules to make our eventual application, which would work seamlessly.
+Here I share a simple project about the way I tried to make a combination of Jupyter and ChibiOS so that readers can utilize it to build your own telemetry project. The following sections are linked to sub documents to explain the detail of each steps to build sub modules to make our eventual application, which would work seamlessly.
 
 <img src="00_doc/image/1.jpg" alt="A prototype of this project" style="width: 100px;"/>
 
