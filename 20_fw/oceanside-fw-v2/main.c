@@ -109,7 +109,7 @@ int main(void) {
 	static const CANConfig cancfg = {
 		CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP | CAN_MCR_NART,
 		CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-		CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
+		CAN_BTR_TS1(8) | CAN_BTR_BRP(14)
 	};
 
 
@@ -118,7 +118,7 @@ int main(void) {
 	canStart(&CAND2, &cancfg);
 
 	uint8_t id = 0x05;
-	uint8_t data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
+	uint8_t data[8] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
 	uint8_t len = 8;
 
 	CANTxFrame txmsg;
