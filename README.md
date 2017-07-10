@@ -36,7 +36,7 @@ Here I share a simple project about the way I tried to make a combination of Jup
 [How to Make the Hardware](00_doc/01_hardware.md): 
 This section explains how to get/make the required hardware. Kicad and Draftsight are used for the custom hardware but don't worry! since the design files (gerber and dxf) for this project are provided in this repository.
 
-## MBED
+## ChibiOS
 
 [How to develop ChibiOS project](00_doc/02_chibios.md):
 This section explains how to install the realted tools and develop the actual ChibiOS based realtime firmware.  
