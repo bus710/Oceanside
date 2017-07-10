@@ -27,23 +27,23 @@ Nowadays, Embedded Engineers are not only requested to develop realtime embedded
 
 Here I share a simple project about the way I tried to make a combination of Jupyter and MBED OS 5 so that readers can utilize it to build your own telemetry project. The following sections are linked to sub documents to explain the detail of each steps to build sub modules to make our eventual application, which would work seamlessly.
 
-<img src="image/1.jpg" alt="A prototype of this project" style="width: 100px;"/>
+<img src="00_doc/image/1.jpg" alt="A prototype of this project" style="width: 100px;"/>
 
 **In writing this guide there is an assumption that the reader is well experienced about Linux. In fact, all the step will be done in both Desktop (Mint 18) and ARM aarch64 server (Ubuntu 16.04.2).**
 
 ## Hardware
 
-[How to Make the Hardware](md/01_hardware.md): 
+[How to Make the Hardware](00_doc/md/01_hardware.md): 
 This section explains how to get/make the required hardware. Kicad and Draftsight are used for the custom hardware but don't worry! since the design files (gerber and dxf) for this project are provided in this repository.
 
 ## MBED
 
-[How to develop ChibiOS project](md/02_chibios.md):
+[How to develop ChibiOS project](00_doc/md/02_chibios.md):
 This section explains how to install the realted tools and develop the actual ChibiOS based realtime firmware.  
 
 ## Jupyter
 
-[How to connect jupyter notebooks and MBED](md/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
+[How to connect jupyter notebooks and MBED](00_doc/md/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
 
 ## Reference
 
