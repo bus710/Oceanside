@@ -113,6 +113,7 @@ int main(void) {
 	};
 
 
+	// Even if CAN1 is not used in the project, CAN1 should be activated.
 	canStart(&CAND1, &cancfg);
 	canStart(&CAND2, &cancfg);
 
