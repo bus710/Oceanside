@@ -33,17 +33,17 @@ Here I share a simple project about the way I tried to make a combination of Jup
 
 ## Hardware
 
-[How to Make the Hardware](00_doc/md/01_hardware.md): 
+[How to Make the Hardware](00_doc/01_hardware.md): 
 This section explains how to get/make the required hardware. Kicad and Draftsight are used for the custom hardware but don't worry! since the design files (gerber and dxf) for this project are provided in this repository.
 
 ## MBED
 
-[How to develop ChibiOS project](00_doc/md/02_chibios.md):
+[How to develop ChibiOS project](00_doc/02_chibios.md):
 This section explains how to install the realted tools and develop the actual ChibiOS based realtime firmware.  
 
 ## Jupyter
 
-[How to connect jupyter notebooks and MBED](00_doc/md/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
+[How to connect jupyter notebooks and MBED](00_doc/03_jupyterhub.md): This section explains how to install the related tools and develop jupyter notebook. 
 
 ## Reference
 
