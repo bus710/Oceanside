@@ -94,8 +94,6 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.m
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/boards/ST_NUCLEO64_F446RE/board.mk
-#include /home/akudoku/00_repo/jumbed/20_fw/oceanside-fw-v1/ChibiOS-17.6.0/os/hal/boards/ST_NUCLEO64_F446RE/board.mk
-#include /home/akudoku/00_repo/jumbed/20_fw/oceanside-fw-v1/ChibiOS_17.6.0/os/hal/boards/ST_NUCLEO64_F446RE/board.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
@@ -103,6 +101,11 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
+
+
+# App files
+include app/app.mk
+
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F446xE.ld
@@ -117,6 +120,7 @@ CSRC = $(STARTUPSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(TESTSRC) \
+       $(APPSRC) \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -149,7 +153,7 @@ ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR = $(CHIBIOS)/os/license \
          $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC)
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) $(APPINC)
 
 #
 # Project, sources and paths
