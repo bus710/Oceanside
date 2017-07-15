@@ -27,9 +27,11 @@ static THD_FUNCTION(Thread_can, arg) {
 
 
 	// Even if CAN1 is not used in the project, CAN1 should be activated.
+	// Since CAN2 relies on the configuration of CAN1.
 	canStart(&CAND1, &cancfg);
 	canStart(&CAND2, &cancfg);
 
+	// Message initial.
 	uint8_t id = 0x05;
 	uint8_t data[8] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
 	uint8_t len = 8;
@@ -57,6 +59,5 @@ void can_init(void)
 										  NORMALPRIO,
 										  Thread_can,
 										  NULL);
-
 }
 
