@@ -100,11 +100,6 @@ static THD_FUNCTION(Thread_uart, arg) {
 	uart_message_init(tx_buf);
 	uart_message_checksum_gen(tx_buf);
 
-	msg_t msg2;
-	chMBFetch(&mb_buffer, &msg2, TIME_IMMEDIATE);
-	char a = msg2;
-	if(a == 0x00){}
-
 
 //	char message = 'a';
 

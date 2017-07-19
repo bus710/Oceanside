@@ -30,7 +30,7 @@
 mutex_t mtx_app_uart;
 char global_char = 0;
 
-char buffer[8];
+msg_t buffer[8];
 msg_t queue[1];
 mailbox_t mb_buffer;
 
@@ -46,14 +46,11 @@ int main(void) {
    *   and performs the board-specific initializations.
    * - Kernel initialization, the main() function becomes a thread and the
    *   RTOS is active.
-   */
-  halInit();
-  chSysInit();
+*/
+	halInit();
+	chSysInit();
 
 	chMtxObjectInit(&mtx_app_uart);
-	chMBObjectInit(&mb_buffer, queue, 1);
-	chMBPost(&mb_buffer, 'B', TIME_INFINITE);
-
 
   blinker_init();
   uart_init();
