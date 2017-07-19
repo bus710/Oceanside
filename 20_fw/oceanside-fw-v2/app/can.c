@@ -1,6 +1,14 @@
+// Standard headers
+#include <stdbool.h>
 #include <string.h>
+
+// System headers
 #include "ch.h"
 #include "hal.h"
+
+// Application headers
+#include "app.h"
+#include "can.h"
 
 
 static THD_WORKING_AREA(waThread_can, 128);

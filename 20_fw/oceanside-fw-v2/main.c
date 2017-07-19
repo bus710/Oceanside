@@ -24,8 +24,15 @@
 // Application headers
 #include "app.h"
 #include "blinker.h"
-#include "serial.h"
 #include "can.h"
+#include "uart.h"
+
+mutex_t mtx_app_uart;
+char global_char = 0;
+
+char buffer[8];
+msg_t queue[1];
+mailbox_t mb_buffer;
 
 
 /*
@@ -43,13 +50,25 @@ int main(void) {
   halInit();
   chSysInit();
 
+	chMtxObjectInit(&mtx_app_uart);
+	chMBObjectInit(&mb_buffer, queue, 1);
+	chMBPost(&mb_buffer, 'B', TIME_INFINITE);
+
+
   blinker_init();
-  serial_init();
+  uart_init();
   can_init();
+
+
 
   // Normal main() thread activity, in this demo it does nothing except
   // sleeping in a loop and check the button state.
 	while (true) {
+
+		chMtxLock(&mtx_app_uart);
+		global_char += 1;
+		chMtxUnlock(&mtx_app_uart);
+
 		chThdSleepMilliseconds(500);
 	}
 }
