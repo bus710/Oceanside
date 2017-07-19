@@ -14,10 +14,15 @@
     limitations under the License.
 */
 
+// Standard headers
+#include <stdbool.h>
+
+// System headers
 #include "ch.h"
 #include "hal.h"
 
-// from the app directory.
+// Application headers
+#include "app.h"
 #include "blinker.h"
 #include "serial.h"
 #include "can.h"
