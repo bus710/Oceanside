@@ -99,7 +99,7 @@ The command's content based on above criteria is:
 | 7~37 | Payload | 0x00 |
 | 38 | Checksum | Lower layer takes care (Xor CRC of index 0~37). |
 
-### When Oceanside is asked its MCU name
+### When Oceanside is asked about its MCU name
 
 Let's say above command is successfully decoded by Oceanside.  
 Now the firmware should return the relevant data, "STM32F446Rx".
