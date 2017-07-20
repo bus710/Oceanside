@@ -27,7 +27,8 @@
 #include "can.h"
 #include "uart.h"
 
-mutex_t mtx_app_uart;
+mutex_t mtx_uart_tx;
+mutex_t mtx_uart_rx;
 char global_char = 0;
 
 msg_t buffer[8];
@@ -50,11 +51,12 @@ int main(void) {
 	halInit();
 	chSysInit();
 
-	chMtxObjectInit(&mtx_app_uart);
+	chMtxObjectInit(&mtx_uart_tx);
 
   blinker_init();
   uart_init();
   can_init();
+  app_init();
 
 
 
@@ -62,9 +64,9 @@ int main(void) {
   // sleeping in a loop and check the button state.
 	while (true) {
 
-		chMtxLock(&mtx_app_uart);
+		chMtxLock(&mtx_uart_tx);
 		global_char += 1;
-		chMtxUnlock(&mtx_app_uart);
+		chMtxUnlock(&mtx_uart_tx);
 
 		chThdSleepMilliseconds(500);
 	}

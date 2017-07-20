@@ -1,5 +1,3 @@
-
-
 // Standard headers
 #include <stdbool.h>
 
@@ -14,6 +12,7 @@
 
 volatile int tx_done;
 volatile int rx_done;
+static uint16_t packet_id;
 
 
 static THD_WORKING_AREA(waThread_uart, 1024);
@@ -57,29 +56,30 @@ static UARTConfig uart_cfg_1 = {
 static void uart_message_init(uint8_t* tx_buf){
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
-	tx_buf[UART_COMMAND_0]		= 0x00;
-	tx_buf[UART_COMMAND_1]		= 0x00;
-	tx_buf[UART_PACKET_ID_0]	= 0x00;
-	tx_buf[UART_PACKET_ID_1]	= 0x00;
-	tx_buf[UART_LEN]						= 0x00;
+	tx_buf[UART_PACKET_ID_0]	= (packet_id & 0xff00) >> 8;
+	tx_buf[UART_PACKET_ID_1]	= (packet_id & 0x00ff);
+	tx_buf[UART_COMMAND_0]		= 0xcc;
+	tx_buf[UART_COMMAND_1]		= 0xcc;
+	tx_buf[UART_LEN]						= 0xdd;
 
-	for (int i=0; i<UART_PL_END-UART_PL_START; i++){
-		tx_buf[UART_PL_START+i] = 0x00;
+	for (int i=UART_PL_START; i<UART_PL_END; i++){
+		tx_buf[i] = i;
 	}
+
+	packet_id += 1;
 }
 
 static void uart_message_checksum_gen(uint8_t* tx_buf){
-	tx_buf[UART_CHECKSUM] = 0x00;
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_0];
+	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_0];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_1];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_1];
+	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_0];
+	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_1];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_LEN];
 
-	for (int i=0; i<UART_PL_END-UART_PL_START; i++){
-		tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PL_START+i];
+	for (int i=UART_PL_START; i<UART_PL_END; i++){
+		tx_buf[UART_CHECKSUM] ^= tx_buf[i];
 	}
 }
 
@@ -91,20 +91,22 @@ static THD_FUNCTION(Thread_uart, arg) {
 	uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
 	uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
 
+	packet_id = 0;
+
 	// Initial UART ports
 	palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // UART1 TX
 	palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7)); // UART1 RX
 	uartStart(&UARTD1, &uart_cfg_1);
 
 
-	uart_message_init(tx_buf);
-	uart_message_checksum_gen(tx_buf);
 
 
 //	char message = 'a';
 
 	while (true) {
 //		uartStartSend(&UARTD1, 1, &message);
+		uart_message_init(tx_buf);
+		uart_message_checksum_gen(tx_buf);
 
 		heartbeat_timeout = 0;
 		while(true){
@@ -128,12 +130,12 @@ static THD_FUNCTION(Thread_uart, arg) {
 			}
 		}
 
-		chMtxLock(&mtx_app_uart);
+		chMtxLock(&mtx_uart_tx);
 		if (global_char > 250){
 			global_char = 0;
 		}
-		tx_buf[0] = global_char;
-		chMtxUnlock(&mtx_app_uart);
+//		tx_buf[0] = global_char;
+		chMtxUnlock(&mtx_uart_tx);
 
 
 		tx_done = false;

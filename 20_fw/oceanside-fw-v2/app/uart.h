@@ -11,7 +11,7 @@
 #define UART_LEN							6
 #define UART_PL_START				7
 #define UART_PL_END						UART_PL_START + 31
-#define UART_CHECKSUM				UART_PL_END + 1
+#define UART_CHECKSUM				UART_MESSAGE_LEN - 1
 
 #define MAIL_NUM							1
 #define MAIL_MESSAGE_LEN		35
