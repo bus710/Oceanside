@@ -20,8 +20,9 @@ volatile uint8_t rx_cnt;
 static uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
 static uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
 
+UART_COMMAND_BUF tx_command_buf, rx_command_buf;
 
-static THD_WORKING_AREA(waThread_uart, 1024);
+static THD_WORKING_AREA(waThread_uart, 128);
 
 // =========================================
 // UART Callback Declarations.
@@ -52,7 +53,7 @@ static void rxend(UARTDriver *uartp){
 }
 
 static void rxchar(UARTDriver *uartp, uint16_t c){
-	// In this handler a received byte would be checked and saved as our protocol.
+	// The received byte would be checked and saved as our protocol.
 	(void)uartp;
 
 	if ((rx_cnt==0) && (c==0xaa)){
@@ -105,29 +106,29 @@ static UARTConfig uart_cfg_1 = {
 	0,
 	USART_CR2_LINEN,
 	0
-	// UART_CR1, CR2, and CR3 should be referred from DS and RM.
+	// USART_CR1, CR2, and CR3 should be referred from DS and RM.
 };
 
 static void uart_tx_message_init(void){
-	// This function takes data from the shared memory from the app thread.
+	// Takes data from the shared memory from the app thread.
 	// And adds packet IDs
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
 	tx_buf[UART_PACKET_ID_0]	= (packet_id & 0xff00) >> 8;
 	tx_buf[UART_PACKET_ID_1]	= (packet_id & 0x00ff);
-	tx_buf[UART_COMMAND_0]		= 0xcc;
-	tx_buf[UART_COMMAND_1]		= 0xcc;
-	tx_buf[UART_LEN]						= 0xdd;
+	tx_buf[UART_COMMAND_0]		= 0x00;
+	tx_buf[UART_COMMAND_1]		= 0x00;
+	tx_buf[UART_LEN]						= 0x00;
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
-		tx_buf[i] = i;
+		tx_buf[i] = 0x00;
 	}
 
 	packet_id += 1;
 }
 
 static void uart_tx_message_checksum_gen(void){
-	// This function generates the checksum.
+	// Generates the checksum.
 	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_0];
@@ -141,6 +142,19 @@ static void uart_tx_message_checksum_gen(void){
 	}
 }
 
+static void buf_initialization(UART_COMMAND_BUF* buf_handler){
+	// Initializes a buffer in the shared space.
+	buf_handler->updated = false;
+	buf_handler->reader_loc = 0;
+	buf_handler->writer_loc = 1;
+	for (int i=0; i<256; i++){
+		for (int j=0; j<SM_UART_MESSAGE_LEN; j++){
+			buf_handler->buf[i][j] = 0x00;
+		}
+	}
+	buf_handler->ready = true;
+}
+
 static THD_FUNCTION(Thread_uart, arg) {
 	(void)arg;
 	chRegSetThreadName("uart");
@@ -152,6 +166,16 @@ static THD_FUNCTION(Thread_uart, arg) {
 	tx_done = true;
 	rx_done = false;
 	packet_id = 0;
+
+	// Command buffer initialization
+	// Please lock the mutexes while editing the buffers.
+	chMtxLock(&mtx_uart_tx);
+	buf_initialization(&tx_command_buf);
+	chMtxUnlock(&mtx_uart_tx);
+
+	chMtxLock(&mtx_uart_rx);
+	buf_initialization(&rx_command_buf);
+	chMtxUnlock(&mtx_uart_rx);
 
 	// UART ports and object initialization
 	palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // UART1 TX
@@ -167,23 +191,61 @@ static THD_FUNCTION(Thread_uart, arg) {
 		// Tx part
 		// =========================================
 
-		// Tx command packing
-		uart_tx_message_init();
-		uart_tx_message_checksum_gen();
 
-		// In order to have minimum communication with the host.
-		heartbeat_timeout += 1;
-		if (heartbeat_timeout > 1000){
-			heartbeat_timeout = 0;
-			if(tx_done){
-				tx_done = false;
-				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
-			}
-		}
+//		// In order to have minimum communication with the host.
+//		heartbeat_timeout += 1;
+//		if (heartbeat_timeout > 1000){
+//			heartbeat_timeout = 0;
+//			if(tx_done){
+//				// Tx command packing
+//				uart_tx_message_init();
+//				uart_tx_message_checksum_gen();
+//				tx_done = false;
+//				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
+//			}
+//		}
 
 		// In order to check if the app thread requested sending packet out.
 		chMtxLock(&mtx_uart_tx);
+		if (tx_command_buf.updated){
+			if ((tx_command_buf.reader_loc + 1) != (tx_command_buf.writer_loc)){
+				// The reader's location and the writer's location are different.
+				// Need to read and send out data
+				tx_command_buf.ready = false;
 
+				if(tx_done){
+					tx_command_buf.reader_loc += 1;
+
+					// Tx command packing
+					uart_tx_message_init();
+
+					tx_buf[UART_COMMAND_0] =
+							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_0];
+					tx_buf[UART_COMMAND_1] =
+							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_1];
+					tx_buf[UART_LEN] =
+							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_LEN];
+					for (int i=0; i<UART_PAYLOAD_LEN; i++){
+						tx_buf[UART_PL_START+i] =
+								tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_PL_START+i];
+					}
+					uart_tx_message_checksum_gen();
+
+					tx_done = false;
+					uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
+
+					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_0] = 0;
+					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_1] = 0;
+					heartbeat_timeout = 0;
+				}
+			}
+			else{
+				// No more requests yet.
+				tx_command_buf.ready = true;
+				tx_command_buf.updated = false;
+			}
+
+		}
 		chMtxUnlock(&mtx_uart_tx);
 
 
