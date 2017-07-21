@@ -10,35 +10,66 @@
 #include "uart.h"
 
 
-volatile int tx_done;
-volatile int rx_done;
 static uint16_t packet_id;
+volatile uint8_t tx_done;
+volatile uint8_t rx_done;
+volatile uint8_t rx_char;
+volatile uint8_t rx_cnt;
+static uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
+static uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
 
 
 static THD_WORKING_AREA(waThread_uart, 1024);
 
 static void txend1(UARTDriver *uartp){
+	// End of transmission buffer callback.
 	(void)uartp;
 	tx_done = true;
 }
 
 static void txend2(UARTDriver *uartp){
+	// Physical end of transmission callback.
 	(void)uartp;
-	rx_done = true;
-}
-
-static void rxerr(UARTDriver *uartp, uartflags_t e){
-  (void)uartp;
-  (void)e;
-}
-
-static void rxchar(UARTDriver *uartp, uint16_t c){
-  (void)uartp;
-  (void)c;
 }
 
 static void rxend(UARTDriver *uartp){
+	// Receive buffer filled callback.
+	(void)uartp;
+}
+
+static void rxchar(UARTDriver *uartp, uint16_t c){
+	// Character received while out if the UART_RECEIVE state.
+	(void)uartp;
+
+	if ((rx_cnt==0) && (c==0xaa)){
+		// received the first preamble, I guess.
+		rx_buf[rx_cnt] = c & 0x00ff;
+		rx_cnt += 1;
+	}
+	else if ((rx_cnt==1) && (c==0xaa)){
+		// received the second preamble, I guess.
+		rx_buf[rx_cnt] = c & 0x00ff;
+		rx_cnt += 1;
+	}
+	else if(rx_cnt > 1){
+		// received command, id, len, and payload.
+		rx_buf[rx_cnt] = c & 0x00ff;
+		rx_cnt += 1;
+	}
+	else{
+
+	}
+
+	if (rx_cnt > UART_MESSAGE_LEN){
+		rx_cnt = 0;
+		rx_done = true;
+	}
+}
+
+static void rxerr(UARTDriver *uartp, uartflags_t e){
+	 // Receive error callback.
   (void)uartp;
+  (void)e;
 }
 
 static UARTConfig uart_cfg_1 = {
@@ -53,7 +84,7 @@ static UARTConfig uart_cfg_1 = {
 	0
 };
 
-static void uart_message_init(uint8_t* tx_buf){
+static void uart_tx_message_init(void){
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
 	tx_buf[UART_PACKET_ID_0]	= (packet_id & 0xff00) >> 8;
@@ -62,14 +93,14 @@ static void uart_message_init(uint8_t* tx_buf){
 	tx_buf[UART_COMMAND_1]		= 0xcc;
 	tx_buf[UART_LEN]						= 0xdd;
 
-	for (int i=UART_PL_START; i<UART_PL_END; i++){
+	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
 		tx_buf[i] = i;
 	}
 
 	packet_id += 1;
 }
 
-static void uart_message_checksum_gen(uint8_t* tx_buf){
+static void uart_tx_message_checksum_gen(void){
 	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_0];
@@ -87,10 +118,11 @@ static THD_FUNCTION(Thread_uart, arg) {
 	(void)arg;
 	chRegSetThreadName("uart");
 
-	uint8_t heartbeat_timeout = 0;
-	uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
-	uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
+	uint16_t heartbeat_timeout = 0;
 
+
+	tx_done = true;
+	rx_done = false;
 	packet_id = 0;
 
 	// Initial UART ports
@@ -99,52 +131,35 @@ static THD_FUNCTION(Thread_uart, arg) {
 	uartStart(&UARTD1, &uart_cfg_1);
 
 
-
-
-//	char message = 'a';
-
 	while (true) {
-//		uartStartSend(&UARTD1, 1, &message);
-		uart_message_init(tx_buf);
-		uart_message_checksum_gen(tx_buf);
+		chThdSleepMilliseconds(1);
 
-		heartbeat_timeout = 0;
-		while(true){
-			heartbeat_timeout += 1;
-			if (heartbeat_timeout > 100) break;
-			chThdSleepMilliseconds(10);
+		uart_tx_message_init();
+		uart_tx_message_checksum_gen();
 
-
-			if(rx_done){
-				rx_done = false;
-
-				// Preamble checking
-				if ((rx_buf[0] != 0xaa) || (rx_buf[1] != 0xaa)){
-					// Invalid packet
-				}
-				else{
-					// Preambles are fine.
-					// Still need to see checksum
-
-				}
+		heartbeat_timeout += 1;
+		if (heartbeat_timeout > 1000){
+			heartbeat_timeout = 0;
+			if(tx_done){
+				tx_done = false;
+				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
 			}
 		}
 
-		chMtxLock(&mtx_uart_tx);
-		if (global_char > 250){
-			global_char = 0;
+		if(rx_done){
+			rx_done = false;
+			uint8_t message[UART_MESSAGE_LEN]={0};
+			for(int i=0; i<UART_MESSAGE_LEN; i++){
+				message[i] = rx_buf[i];
+			}
+			uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
 		}
-//		tx_buf[0] = global_char;
-		chMtxUnlock(&mtx_uart_tx);
 
-
-		tx_done = false;
-		uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
-		uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
-
-		while(tx_done == false){
-			chThdSleepMilliseconds(10);
-		}
+//		chMtxLock(&mtx_uart_tx);
+//		if (global_char > 250){
+//			global_char = 0;
+//		}
+//		chMtxUnlock(&mtx_uart_tx);
 
 	}
 }

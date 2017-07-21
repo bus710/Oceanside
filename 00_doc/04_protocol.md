@@ -7,7 +7,7 @@ Odroid C2 and Oceanside board are connected over serial (ttyS1 and uart1, respec
   
 In each side it is easy to read/write serial packets by accessing the interfaces but as these require various data exchange via the interface so that a protocol is suggested below.
 
-Basically these use 115200 buad rate and each command consists of 39 bytes.
+Basically these use 115200 buad rate and each command consists of 40 bytes.
 
 - 2 preambles
 - 2 commands
@@ -16,8 +16,8 @@ Basically these use 115200 buad rate and each command consists of 39 bytes.
 - 32 payloads
 - 1 checksum
 
-Up to 295 commands can be sent per 1 second (11520 / 39 = 295).  
-However, it is better to avoid full throughput but 80% might be good. (295 * 0.8 = 236 commands/second)
+Up to 288 commands can be sent per 1 second (11520 / 40 = 288).  
+However, it is better to avoid full throughput but 80% might be good. (288 * 0.8 = 230 commands/second)
 
 ### Preable
 
@@ -96,8 +96,8 @@ The command's content based on above criteria is:
 | 4 | Packet ID 0 | Lower layer takes care |
 | 5 | Packet ID 1 | Lower layer takes care |
 | 6 | Type & Length | 0x00 |
-| 7~37 | Payload | 0x00 |
-| 38 | Checksum | Lower layer takes care (Xor CRC of index 0~37). |
+| 7~38 | Payload | 0x00 |
+| 39 | Checksum | Lower layer takes care (Xor CRC of index 0~38). |
 
 ### When Oceanside is asked about its MCU name
 
@@ -117,5 +117,5 @@ The command's content based on above criteria is:
 | 5 | Packet ID 1 | Lower layer takes care |
 | 6 | Type & Length | 0x8B (128 + 11 = 139) |
 | 7~17 | Payload 0~10 | 'STM32F446Rx' |
-| 18~37 | Payload 11~31 | 0x00 |
-| 38 | Checksum | Lower layer takes care (Xor CRC of index 0~37). |
+| 18~38 | Payload 11~31 | 0x00 |
+| 39 | Checksum | Lower layer takes care (Xor CRC of index 0~38). |
