@@ -27,14 +27,6 @@
 #include "can.h"
 #include "uart.h"
 
-mutex_t mtx_uart_tx;
-mutex_t mtx_uart_rx;
-char global_char = 0;
-
-msg_t buffer[8];
-msg_t queue[1];
-mailbox_t mb_buffer;
-
 
 /*
  * Application entry point.
@@ -64,9 +56,6 @@ int main(void) {
   // sleeping in a loop and check the button state.
 	while (true) {
 
-		chMtxLock(&mtx_uart_tx);
-		global_char += 1;
-		chMtxUnlock(&mtx_uart_tx);
 
 		chThdSleepMilliseconds(500);
 	}

@@ -11,10 +11,6 @@
 #define PT_VER					"0001"
 
 
-extern mutex_t mtx_uart_tx;
-extern mutex_t mtx_uart_rx;
-extern char global_char;
-
 void app_init(void);
 
 #endif

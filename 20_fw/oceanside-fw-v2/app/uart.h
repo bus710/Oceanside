@@ -23,6 +23,8 @@
 #define MAIL_PL_START				7
 #define MAIL_PL_END						MAIL_PL_START + 31
 
+extern mutex_t mtx_uart_tx;
+extern mutex_t mtx_uart_rx;
 
 void uart_init(void);
 
