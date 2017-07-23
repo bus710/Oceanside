@@ -114,11 +114,9 @@ static void uart_tx_message_init(void){
 	// And adds packet IDs
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
-	tx_buf[UART_PACKET_ID_0]	= (packet_id & 0xff00) >> 8;
-	tx_buf[UART_PACKET_ID_1]	= (packet_id & 0x00ff);
-	tx_buf[UART_COMMAND_0]		= 0x00;
-	tx_buf[UART_COMMAND_1]		= 0x00;
-	tx_buf[UART_LEN]						= 0x00;
+	tx_buf[UART_PACKET_ID]		= (packet_id & 0x00ff);
+	tx_buf[UART_COMMAND]		= 0x00;
+	tx_buf[UART_LEN]			= 0x00;
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
 		tx_buf[i] = 0x00;
@@ -131,10 +129,8 @@ static void uart_tx_message_checksum_gen(void){
 	// Generates the checksum.
 	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_0];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID_1];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_0];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND_1];
+	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID];
+	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_LEN];
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
@@ -219,10 +215,8 @@ static THD_FUNCTION(Thread_uart, arg) {
 					// Tx command packing
 					uart_tx_message_init();
 
-					tx_buf[UART_COMMAND_0] =
-							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_0];
-					tx_buf[UART_COMMAND_1] =
-							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_1];
+					tx_buf[UART_COMMAND] =
+							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND];
 					tx_buf[UART_LEN] =
 							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_LEN];
 					for (int i=0; i<UART_PAYLOAD_LEN; i++){
@@ -234,8 +228,7 @@ static THD_FUNCTION(Thread_uart, arg) {
 					tx_done = false;
 					uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
 
-					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_0] = 0;
-					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND_1] = 0;
+					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND] = 0;
 					heartbeat_timeout = 0;
 				}
 			}
