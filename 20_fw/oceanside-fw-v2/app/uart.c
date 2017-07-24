@@ -222,7 +222,7 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 			}
 			else {
-				// sent all
+				// sent all already.
 				uart_command_buf.ready = true;
 				uart_command_buf.tx_updated = false;
 			}
@@ -242,10 +242,11 @@ static THD_FUNCTION(Thread_uart, arg) {
 			// In order to store the received data to the shared memory space.
 			chMtxLock(&mtx_uart);
 
-			uart_command_buf.buf[rx_buf[3]][SM_UART_LEN] = rx_buf[UART_LEN];
+			uart_command_buf.buf[rx_buf[UART_ADDRESS]][SM_UART_LEN] =
+					rx_buf[UART_LEN];
 
 			for (int i = 0; i < UART_MESSAGE_LEN; i++) {
-				uart_command_buf.buf[rx_buf[3]][SM_UART_PL_START + i] =
+				uart_command_buf.buf[rx_buf[UART_ADDRESS]][SM_UART_PL_START + i] =
 						rx_buf[UART_PL_START + i];
 			}
 
@@ -254,7 +255,6 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 			uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
 		}
-
 
 	}
 }
