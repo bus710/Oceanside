@@ -43,7 +43,6 @@ int main(void) {
 	halInit();
 	chSysInit();
 
-	chMtxObjectInit(&mtx_uart_tx);
 
   blinker_init();
   uart_init();

@@ -9,8 +9,7 @@
 #include "app.h"
 #include "uart.h"
 
-mutex_t mtx_uart_tx;
-mutex_t mtx_uart_rx;
+mutex_t mtx_uart;
 
 static uint16_t packet_id;
 volatile uint8_t tx_done;
@@ -20,7 +19,7 @@ volatile uint8_t rx_cnt;
 static uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
 static uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
 
-UART_COMMAND_BUF tx_command_buf, rx_command_buf;
+UART_COMMAND_BUF uart_command_buf;
 
 static THD_WORKING_AREA(waThread_uart, 128);
 
@@ -140,7 +139,8 @@ static void uart_tx_message_checksum_gen(void){
 
 static void buf_initialization(UART_COMMAND_BUF* buf_handler){
 	// Initializes a buffer in the shared space.
-	buf_handler->updated = false;
+	buf_handler->tx_updated = false;
+	buf_handler->rx_updated = false;
 	buf_handler->writer_loc = 0;
 	for (int i = 0; i < 128; i++) {
 		for (int j=0; j<SM_UART_MESSAGE_LEN; j++){
@@ -155,7 +155,6 @@ static THD_FUNCTION(Thread_uart, arg) {
 	chRegSetThreadName("uart");
 
 	// Local variable declaration
-	uint16_t heartbeat_timeout = 0;
 
 	// Thread variable declaration
 	tx_done = true;
@@ -164,13 +163,11 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 	// Command buffer initialization
 	// Please lock the mutexes while editing the buffers.
-	chMtxLock(&mtx_uart_tx);
-	buf_initialization(&tx_command_buf);
-	chMtxUnlock(&mtx_uart_tx);
+	chMtxObjectInit(&mtx_uart);
 
-	chMtxLock(&mtx_uart_rx);
-	buf_initialization(&rx_command_buf);
-	chMtxUnlock(&mtx_uart_rx);
+	chMtxLock(&mtx_uart);
+	buf_initialization(&uart_command_buf);
+	chMtxUnlock(&mtx_uart);
 
 	// UART ports and object initialization
 	palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // UART1 TX
@@ -201,19 +198,19 @@ static THD_FUNCTION(Thread_uart, arg) {
 //		}
 
 		// In order to check if the app thread requested sending packet out.
-		chMtxLock(&mtx_uart_tx);
-		if ((tx_command_buf.updated) && (tx_done)) {
+		chMtxLock(&mtx_uart);
+		if ((uart_command_buf.tx_updated) && (tx_done)) {
 
-			if (tx_command_buf.writer_loc < 100) {
+			if (uart_command_buf.writer_loc < 100) {
 				// Tx command packing
 				uart_tx_message_init();
 
-				tx_buf[UART_COMMAND] = tx_command_buf.writer_loc;
+				tx_buf[UART_COMMAND] = uart_command_buf.writer_loc;
 				tx_buf[UART_LEN] =
-						tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_LEN];
+						uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_LEN];
 				for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
 					tx_buf[UART_PL_START + i] =
-							tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_PL_START
+							uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_PL_START
 									+ i];
 				}
 				uart_tx_message_checksum_gen();
@@ -221,18 +218,17 @@ static THD_FUNCTION(Thread_uart, arg) {
 				tx_done = false;
 				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
 
-				tx_command_buf.writer_loc += 1;
+				uart_command_buf.writer_loc += 1;
 
-				heartbeat_timeout = 0;
 			}
 			else {
 				// sent all
-				tx_command_buf.ready = true;
-				tx_command_buf.updated = false;
+				uart_command_buf.ready = true;
+				uart_command_buf.tx_updated = false;
 			}
 
 		}
-		chMtxUnlock(&mtx_uart_tx);
+		chMtxUnlock(&mtx_uart);
 
 
 		// =========================================
@@ -242,15 +238,19 @@ static THD_FUNCTION(Thread_uart, arg) {
 		// In order to receive a command.
 		if(rx_done){
 			rx_done = false;
-//			uint8_t message[UART_MESSAGE_LEN]={0};
-//			for(int i=0; i<UART_MESSAGE_LEN; i++){
-//				message[i] = rx_buf[i];
-//			}
 
 			// In order to store the received data to the shared memory space.
-			chMtxLock(&mtx_uart_tx);
+			chMtxLock(&mtx_uart);
 
-			chMtxUnlock(&mtx_uart_tx);
+			uart_command_buf.buf[rx_buf[3]][SM_UART_LEN] = rx_buf[UART_LEN];
+
+			for (int i = 0; i < UART_MESSAGE_LEN; i++) {
+				uart_command_buf.buf[rx_buf[3]][SM_UART_PL_START + i] =
+						rx_buf[UART_PL_START + i];
+			}
+
+			uart_command_buf.rx_updated = true;
+			chMtxUnlock(&mtx_uart);
 
 			uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
 		}

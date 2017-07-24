@@ -23,15 +23,15 @@
 
 typedef struct UART_COMMAND_BUFS {
 	bool ready;
-	bool updated;
+	bool tx_updated;
+	bool rx_updated;
 	uint8_t writer_loc;
 	uint8_t buf[128][SM_UART_MESSAGE_LEN];
 } UART_COMMAND_BUF;
 
-extern UART_COMMAND_BUF tx_command_buf, rx_command_buf;
+extern UART_COMMAND_BUF uart_command_buf;
 
-extern mutex_t mtx_uart_tx;
-extern mutex_t mtx_uart_rx;
+extern mutex_t mtx_uart;
 
 void uart_init(void);
 
