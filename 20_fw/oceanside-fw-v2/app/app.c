@@ -17,24 +17,38 @@ static THD_FUNCTION(Thread_app, arg) {
 	chRegSetThreadName("app");
 
 	while (true) {
-		chThdSleepMilliseconds(400);
 
-		chMtxLock(&mtx_uart_tx);
-		if (tx_command_buf.ready == true){
-			if ((tx_command_buf.writer_loc + 1) != (tx_command_buf.reader_loc)){
-				tx_command_buf.updated = true;
-				tx_command_buf.writer_loc += 1;
-				tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_COMMAND] = 0xff;
-				tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_LEN] = 16;
-				for (int i=0; i<UART_PAYLOAD_LEN; i++){
-					tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_PL_START+i] = 0xff;
+		bool sec_checker = true;
+
+		systime_t start = chVTGetSystemTime();
+		systime_t end = start + S2ST(1);
+
+		while (chVTIsSystemTimeWithin(start, end)) {
+
+			chThdSleepMilliseconds(20);
+
+			if (sec_checker) {
+				sec_checker = false;
+
+				chMtxLock(&mtx_uart_tx);
+
+				if ((tx_command_buf.ready == true)
+						&& (tx_command_buf.updated == false)) {
+					tx_command_buf.updated = true;
+					tx_command_buf.writer_loc = 0;
+
+					for (int j = 0; j < 128; j++) {
+						tx_command_buf.buf[j][SM_UART_LEN] = 16;
+						for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
+							tx_command_buf.buf[j][SM_UART_PL_START + i] = 0xff;
+						}
+					}
+
 				}
+
+				chMtxUnlock(&mtx_uart_tx);
 			}
-
 		}
-
-		chMtxUnlock(&mtx_uart_tx);
-
 	}
 }
 
@@ -43,8 +57,9 @@ void app_init(void)
 {
   // Creates the serial thread.
   chThdCreateStatic(waThread_app,
-										  sizeof(waThread_app),
-										  NORMALPRIO,
-										  Thread_app,
-										  NULL);
+		  sizeof(waThread_app),
+		  NORMALPRIO,
+		  Thread_app,
+		  NULL);
+
 }

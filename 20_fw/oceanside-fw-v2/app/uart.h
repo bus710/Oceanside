@@ -7,27 +7,25 @@
 #define UART_MESSAGE_LEN					22
 #define UART_PREAMBLE_0					0
 #define UART_PREAMBLE_1					1
-#define UART_PACKET_ID						2
+#define UART_PACKET_ID					2
 #define UART_COMMAND						3
 #define UART_LEN							4
 #define UART_PL_START						5
-#define UART_PL_END							UART_PL_START + 15
+#define UART_PL_END						UART_PL_START + 15
 #define UART_CHECKSUM						UART_PL_END + 1
 
 // Message structure for messages exchanged in shared memory
-#define SM_UART_MESSAGE_LEN				18
-#define SM_UART_COMMAND					0
-#define SM_UART_LEN							1
+#define SM_UART_MESSAGE_LEN				17
+#define SM_UART_LEN						1
 #define SM_UART_PL_START					2
-#define SM_UART_PL_END						SM_UART_PL_START + 15
+#define SM_UART_PL_END					SM_UART_PL_START + 15
 
 
 typedef struct UART_COMMAND_BUFS {
 	bool ready;
 	bool updated;
-	uint8_t reader_loc;
 	uint8_t writer_loc;
-	uint8_t buf[256][SM_UART_MESSAGE_LEN];
+	uint8_t buf[128][SM_UART_MESSAGE_LEN];
 } UART_COMMAND_BUF;
 
 extern UART_COMMAND_BUF tx_command_buf, rx_command_buf;

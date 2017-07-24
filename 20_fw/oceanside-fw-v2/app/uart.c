@@ -114,7 +114,7 @@ static void uart_tx_message_init(void){
 	// And adds packet IDs
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
-	tx_buf[UART_PACKET_ID]		= (packet_id & 0x00ff);
+	tx_buf[UART_PACKET_ID] = (packet_id & 0x00ff);
 	tx_buf[UART_COMMAND]		= 0x00;
 	tx_buf[UART_LEN]			= 0x00;
 
@@ -141,9 +141,8 @@ static void uart_tx_message_checksum_gen(void){
 static void buf_initialization(UART_COMMAND_BUF* buf_handler){
 	// Initializes a buffer in the shared space.
 	buf_handler->updated = false;
-	buf_handler->reader_loc = 0;
-	buf_handler->writer_loc = 1;
-	for (int i=0; i<256; i++){
+	buf_handler->writer_loc = 0;
+	for (int i = 0; i < 128; i++) {
 		for (int j=0; j<SM_UART_MESSAGE_LEN; j++){
 			buf_handler->buf[i][j] = 0x00;
 		}
@@ -203,37 +202,31 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 		// In order to check if the app thread requested sending packet out.
 		chMtxLock(&mtx_uart_tx);
-		if (tx_command_buf.updated){
-			if ((tx_command_buf.reader_loc + 1) != (tx_command_buf.writer_loc)){
-				// The reader's location and the writer's location are different.
-				// Need to read and send out data
-				tx_command_buf.ready = false;
+		if ((tx_command_buf.updated) && (tx_done)) {
 
-				if(tx_done){
-					tx_command_buf.reader_loc += 1;
+			if (tx_command_buf.writer_loc < 100) {
+				// Tx command packing
+				uart_tx_message_init();
 
-					// Tx command packing
-					uart_tx_message_init();
-
-					tx_buf[UART_COMMAND] =
-							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND];
-					tx_buf[UART_LEN] =
-							tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_LEN];
-					for (int i=0; i<UART_PAYLOAD_LEN; i++){
-						tx_buf[UART_PL_START+i] =
-								tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_PL_START+i];
-					}
-					uart_tx_message_checksum_gen();
-
-					tx_done = false;
-					uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
-
-					tx_command_buf.buf[tx_command_buf.reader_loc][SM_UART_COMMAND] = 0;
-					heartbeat_timeout = 0;
+				tx_buf[UART_COMMAND] = tx_command_buf.writer_loc;
+				tx_buf[UART_LEN] =
+						tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_LEN];
+				for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
+					tx_buf[UART_PL_START + i] =
+							tx_command_buf.buf[tx_command_buf.writer_loc][SM_UART_PL_START
+									+ i];
 				}
+				uart_tx_message_checksum_gen();
+
+				tx_done = false;
+				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
+
+				tx_command_buf.writer_loc += 1;
+
+				heartbeat_timeout = 0;
 			}
-			else{
-				// No more requests yet.
+			else {
+				// sent all
 				tx_command_buf.ready = true;
 				tx_command_buf.updated = false;
 			}
