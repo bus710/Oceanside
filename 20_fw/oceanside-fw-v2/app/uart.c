@@ -261,11 +261,9 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 void uart_init(void)
 {
-  // Creates the serial thread.
+	// Creates the uart thread.
   chThdCreateStatic(waThread_uart,
-										  sizeof(waThread_uart),
-										  NORMALPRIO,
-										  Thread_uart,
-										  NULL);
-
+	sizeof(waThread_uart),
+	NORMALPRIO, Thread_uart,
+	NULL);
 }
