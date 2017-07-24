@@ -114,7 +114,7 @@ static void uart_tx_message_init(void){
 	tx_buf[UART_PREAMBLE_0]	= 0xaa;
 	tx_buf[UART_PREAMBLE_1]	= 0xaa;
 	tx_buf[UART_PACKET_ID] = (packet_id & 0x00ff);
-	tx_buf[UART_COMMAND]		= 0x00;
+	tx_buf[UART_ADDRESS] = 0x00;
 	tx_buf[UART_LEN]			= 0x00;
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
@@ -129,7 +129,7 @@ static void uart_tx_message_checksum_gen(void){
 	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_COMMAND];
+	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_ADDRESS];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_LEN];
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
@@ -205,7 +205,7 @@ static THD_FUNCTION(Thread_uart, arg) {
 				// Tx command packing
 				uart_tx_message_init();
 
-				tx_buf[UART_COMMAND] = uart_command_buf.writer_loc;
+				tx_buf[UART_ADDRESS] = uart_command_buf.writer_loc;
 				tx_buf[UART_LEN] =
 						uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_LEN];
 				for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
