@@ -21,18 +21,12 @@
 // The address range is 118~127 so that MCU_ID will be 118.
 // Each one has 16 bytes space so that the max length should be up to 16.
 
-#define SYSTEM_INFO_BASE_ADDRESS	118
-#define SYSTEM_INFO_END_ADDRESS		SYSTEM_INFO_BASE_ADDRESS + 9
-#define MCU_ID					"STM32F446Rx"
-#define KERNEL_INFO			"CHIBIOS_1706"
-#define PROJ_NAME				"OCEANSIDE"
-#define PROJ_VER				"1"
-#define HW_VER					"0001"
-#define FW_VER					"0001"
-#define POROTOCOL_VER			"0001"
-#define RESERVED_1			"0000"
-#define RESERVED_2			"0000"
-#define RESERVED_3			"0000"
+#define SYS_INFO_BASE_ADDR	118
+#define SYS_INFO_END_ADDR	SYS_INFO_BASE_ADDR + 9
+
+static const char sys_info[10][16] = { "F446Rx", "1706", "OCEANSIDE", "0001",
+		"0001", "0001", "0001", "0000", "0000", "0000"
+};
 
 enum system_info_order {
 	mcu_id,
@@ -53,8 +47,8 @@ enum system_info_order {
 // The address range is 100~117.
 // Each one has 16 bytes space so that the max length should be up to 16.
 
-#define APP_INFO_BASE_ADDRESS	100
-#define APP_INFO_END_ADDRESS		APP_INFO_BASE_ADDRESS + 17
+#define APP_INFO_BASE_ADDR	100
+#define APP_INFO_END_ADDR	APP_INFO_BASE_ADDR + 17
 
 enum app_info_order {
 	app_config,
@@ -83,8 +77,8 @@ enum app_info_order {
 // The address range is 0~99.
 // Each one has 16 bytes space so that the max length should be up to 16.
 
-#define DATA_STREAM_BASE_ADDRESS 	0
-#define DATA_STREAM_END_ADDRESS		DATA_STREAM_BASE_ADDRESS + 99
+#define DATA_STREAM_BASE_ADDR 	0
+#define DATA_STREAM_END_ADDR		DATA_STREAM_BASE_ADDR + 99
 
 void app_init(void);
 

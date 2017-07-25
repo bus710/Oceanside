@@ -201,7 +201,7 @@ static THD_FUNCTION(Thread_uart, arg) {
 		chMtxLock(&mtx_uart);
 		if ((uart_command_buf.tx_updated) && (tx_done)) {
 
-			if (uart_command_buf.writer_loc < 100) {
+			if (uart_command_buf.writer_loc < 128) {
 				// Tx command packing
 				uart_tx_message_init();
 
