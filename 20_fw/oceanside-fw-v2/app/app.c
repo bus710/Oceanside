@@ -18,7 +18,7 @@ static THD_FUNCTION(Thread_app, arg) {
 
 	while (true) {
 
-		bool sec_checker = true;
+		bool app_tick = true;
 
 		systime_t start = chVTGetSystemTime();
 		systime_t end = start + S2ST(1);
@@ -27,8 +27,8 @@ static THD_FUNCTION(Thread_app, arg) {
 
 			chThdSleepMilliseconds(20);
 
-			if (sec_checker) {
-				sec_checker = false;
+			if (app_tick) {
+				app_tick = false;
 
 				chMtxLock(&mtx_uart);
 
