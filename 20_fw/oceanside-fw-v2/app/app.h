@@ -1,15 +1,90 @@
 #ifndef APP_H_
 #define APP_H_
 
+
+/*
+ Here is the entire map of main information.
+
+ There are 3 different data type:
+ - SYSTEM INFORMATION provides constant data to present the board's information.
+ - APPLICATION INFORMATION stores variables to keep current application's information.
+ - DATA STREAM stores real time data from sensors and motors.
+
+ DATA STREAM should be updated once every second.
+ However, SYSTEM INFORMATION only needs to be updated when the high level software is initialized.
+ Also, APPLICATION INFORMATION needs to be exchanged when the high level software requires it.
+ */
+
+
+// Address definition for System Information.
+// Up to 10 addresses can be defined here.
+// The address range is 118~127 so that MCU_ID will be 118.
+// Each one has 16 bytes space so that the max length should be up to 16.
+
+#define SYSTEM_INFO_BASE_ADDRESS	118
+#define SYSTEM_INFO_END_ADDRESS		SYSTEM_INFO_BASE_ADDRESS + 9
 #define MCU_ID					"STM32F446Rx"
-#define KN_VER					"1706"
+#define KERNEL_INFO			"CHIBIOS_1706"
+#define PROJ_NAME				"OCEANSIDE"
+#define PROJ_VER				"1"
+#define HW_VER					"0001"
+#define FW_VER					"0001"
+#define POROTOCOL_VER			"0001"
+#define RESERVED_1			"0000"
+#define RESERVED_2			"0000"
+#define RESERVED_3			"0000"
 
-#define PRJ_ID					"OCEANSIDE"
-#define PRJ_VER				"1"
-#define HW_VER					"0003"
-#define FW_VER					"0002"
-#define PT_VER					"0001"
+enum system_info_order {
+	mcu_id,
+	kernel_info,
+	proj_name,
+	proj_ver,
+	hw_ver,
+	fw_ver,
+	protocol_ver,
+	reserved_system_1,
+	reserved_system_2,
+	reserved_system_3
+};
 
+
+// Address definition for Application Information.
+// Up to 18 addresses can be defined here.
+// The address range is 100~117.
+// Each one has 16 bytes space so that the max length should be up to 16.
+
+#define APP_INFO_BASE_ADDRESS	100
+#define APP_INFO_END_ADDRESS		APP_INFO_BASE_ADDRESS + 17
+
+enum app_info_order {
+	app_config,
+	uart_config,
+	rs485_config,
+	i2c_config,
+	spi_config,
+	gpio_config_0,
+	gpio_config_1,
+	gpio_config_2,
+	gpio_config_3,
+	can_config_0,
+	can_config_1,
+	can_config_2,
+	can_config_3,
+	motor_config_0,
+	motor_config_1,
+	motor_config_2,
+	motor_config_3,
+	reserved_app_0
+};
+
+
+// Address definition for Data Stream.
+// Up to 100 addressed can be degined here.
+// The address range is 0~99.
+// Each one has 16 bytes space so that the max length should be up to 16.
+
+#define DATA_STREAM_BASE_ADDRESS 	0
+#define DATA_STREAM_END_ADDRESS		DATA_STREAM_BASE_ADDRESS + 99
 
 void app_init(void);
 
