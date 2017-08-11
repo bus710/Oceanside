@@ -27,35 +27,29 @@
 #include "can.h"
 #include "uart.h"
 
-
 /*
  * Application entry point.
  */
 int main(void) {
+	/*
+	* System initializations.
+	* - HAL initialization, this also initializes the configured device drivers
+	*   and performs the board-specific initializations.
+	* - Kernel initialization, the main() function becomes a thread and the
+	*   RTOS is active.
+	*/
 
-  /*
-   * System initializations.
-   * - HAL initialization, this also initializes the configured device drivers
-   *   and performs the board-specific initializations.
-   * - Kernel initialization, the main() function becomes a thread and the
-   *   RTOS is active.
-*/
 	halInit();
 	chSysInit();
 
+	blinker_init();
+	uart_init();
+	can_init();
+	app_init();
 
-  blinker_init();
-  uart_init();
-  can_init();
-  app_init();
-
-
-
-  // Normal main() thread activity, in this demo it does nothing except
-  // sleeping in a loop and check the button state.
+	// Normal main() thread activity, in this demo it does nothing except
+	// sleeping in a loop and check the button state.
 	while (true) {
-
-
 		chThdSleepMilliseconds(500);
 	}
 }
