@@ -73,7 +73,7 @@ enum app_info_order {
 
 
 // Address definition for Data Stream.
-// Up to 100 addressed can be degined here.
+// Up to 100 addresses can be defined here.
 // The address range is 0~99.
 // Each one has 16 bytes space so that the max length should be up to 16.
 

@@ -22,9 +22,10 @@ static THD_FUNCTION(Thread_blinker, arg) {
 void blinker_init(void)
 {
   // Creates the blinker thread.
-  chThdCreateStatic(waThread_blinker,
-										  sizeof(waThread_blinker),
-										  NORMALPRIO,
-										  Thread_blinker,
-										  NULL);
+  chThdCreateStatic(
+	  waThread_blinker,
+	  sizeof(waThread_blinker),
+	  NORMALPRIO,
+	  Thread_blinker,
+	  NULL);
 }

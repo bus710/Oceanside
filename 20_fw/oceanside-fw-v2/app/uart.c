@@ -202,16 +202,17 @@ static THD_FUNCTION(Thread_uart, arg) {
 		if ((uart_command_buf.tx_updated) && (tx_done)) {
 
 			if (uart_command_buf.writer_loc < 128) {
+
 				// Tx command packing
 				uart_tx_message_init();
 
 				tx_buf[UART_ADDRESS] = uart_command_buf.writer_loc;
 				tx_buf[UART_LEN] =
 						uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_LEN];
+
 				for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
 					tx_buf[UART_PL_START + i] =
-							uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_PL_START
-									+ i];
+							uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_PL_START + i];
 				}
 				uart_tx_message_checksum_gen();
 
@@ -228,7 +229,6 @@ static THD_FUNCTION(Thread_uart, arg) {
 			}
 
 		}
-		chMtxUnlock(&mtx_uart);
 
 
 		// =========================================
@@ -240,29 +240,30 @@ static THD_FUNCTION(Thread_uart, arg) {
 			rx_done = false;
 
 			// In order to store the received data to the shared memory space.
-			chMtxLock(&mtx_uart);
+			uint8_t addr = rx_buf[UART_ADDRESS];
 
-			uart_command_buf.buf[rx_buf[UART_ADDRESS]][SM_UART_LEN] =
-					rx_buf[UART_LEN];
+			if(addr < 128){
+				uart_command_buf.buf[addr][SM_UART_LEN] = rx_buf[UART_LEN];
 
-			for (int i = 0; i < UART_MESSAGE_LEN; i++) {
-				uart_command_buf.buf[rx_buf[UART_ADDRESS]][SM_UART_PL_START + i] =
-						rx_buf[UART_PL_START + i];
+				for (int i = 0; i < UART_MESSAGE_LEN; i++) {
+					uart_command_buf.buf[addr][SM_UART_PL_START + i] = rx_buf[UART_PL_START + i];
+				}
 			}
 
 			uart_command_buf.rx_updated = true;
-			chMtxUnlock(&mtx_uart);
 
 			uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
 		}
 
+		chMtxUnlock(&mtx_uart);
 	}
 }
 
 void uart_init(void)
 {
 	// Creates the uart thread.
-  chThdCreateStatic(waThread_uart,
+  chThdCreateStatic(
+	waThread_uart,
 	sizeof(waThread_uart),
 	NORMALPRIO, Thread_uart,
 	NULL);

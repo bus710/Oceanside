@@ -27,14 +27,14 @@ static const CANConfig cancfg = {
 		| CAN_BTR_BRP(14) };
 
 
-static THD_WORKING_AREA(waThread_can2_rx, 128);
+static THD_WORKING_AREA(waThread_can2_rx, 256);
 static THD_FUNCTION(Thread_can2_rx, p) {
 	struct can_instance *cip = p;
 	event_listener_t el;
 	CANRxFrame rxmsg;
 
 	(void)p;
-	chRegSetThreadName("can2_receiver");
+	chRegSetThreadName("can2_rx");
 	chEvtRegister(&cip->canp->rxfull_event, &el, 0);
 
 	while(true){
@@ -47,8 +47,6 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 				&rxmsg,
 				TIME_IMMEDIATE) == MSG_OK){
 			chThdSleepMilliseconds(5);
-			uint32_t a = rxmsg.data32[0];
-			if(a){}
 		}
 	}
 	chEvtUnregister(&CAND2.rxfull_event, &el);
@@ -56,8 +54,10 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 
 static THD_WORKING_AREA(waThread_can2_tx, 128);
 static THD_FUNCTION(Thread_can2_tx, p) {
+	//struct can_instance *cip = p;
 
 	(void)p;
+	chRegSetThreadName("can2_tx");
 
 	// Message initial.
 	CANTxFrame txmsg;
@@ -95,16 +95,16 @@ void can_init(void)
 
 	// Creates the serial thread.
 	chThdCreateStatic(
-			waThread_can2_tx,
-			sizeof(waThread_can2_tx),
-			NORMALPRIO,
-			Thread_can2_tx,
-			(void *)&can2);
+		waThread_can2_tx,
+		sizeof(waThread_can2_tx),
+		NORMALPRIO,
+		Thread_can2_tx,
+		(void *)&can2);
 	chThdCreateStatic(
-			waThread_can2_rx,
-			sizeof(waThread_can2_rx),
-			NORMALPRIO,
-			Thread_can2_rx,
-			(void *)&can2);
+		waThread_can2_rx,
+		sizeof(waThread_can2_rx),
+		NORMALPRIO,
+		Thread_can2_rx,
+		(void *)&can2);
 }
 
