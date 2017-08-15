@@ -46,6 +46,10 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 				CAN_ANY_MAILBOX,
 				&rxmsg,
 				TIME_IMMEDIATE) == MSG_OK){
+		    uint32_t e = rxmsg.EID;
+		    uint32_t a = rxmsg.data32[0];
+		    uint32_t b = rxmsg.data32[1];
+
 			chThdSleepMilliseconds(5);
 		}
 	}
@@ -62,7 +66,8 @@ static THD_FUNCTION(Thread_can2_tx, p) {
 	// Message initial.
 	CANTxFrame txmsg;
 	txmsg.IDE = CAN_IDE_EXT;
-	txmsg.EID = 0x00000005; // ID
+	//txmsg.EID = 0x00000005; // ID
+	txmsg.EID = 0x00FEAA01; // ID
 	txmsg.RTR = CAN_RTR_DATA;
 	txmsg.DLC = 8; // length
 	txmsg.data32[0] = 0xaa55aa55;
@@ -85,13 +90,43 @@ void can_init(void)
 						PAL_STM32_OTYPE_PUSHPULL |
 						PAL_STM32_OSPEED_MID1 ); // CAN2 TX
 
-	// Setup filters
-	//canSTM32SetFilters(0, 0, NULL, NULL);
+
+    // Setup filters
+	// http://www.chibios.com/forum/viewtopic.php?f=16&t=4079
+	/*
+    CANFilter = {
+        uint32_t filters,   (Number of filters)
+        uint32_t mode,      (0=mask, 1=list)
+        uint32_t scale,     (0=16bit, 1=32bit)
+        uint32_t assignment,(CAN_FFA1R register bit)
+        uint32_t register1, (Identifier)
+        uint32_t register2  (Mask/Identifier)
+    }*/
+	CANFilter f[2] = {
+	               {1, 1, 1, 0,
+	               set_can_eid_data(0x00000000),
+	               set_can_eid_data(0x00000000)},
+	               {2, 1, 1, 1,
+	               set_can_eid_data(0x00000004),
+	               set_can_eid_data(0x00000004)}
+	               };
+
+    /*
+	canSTM32SetFilters(
+	    CANDriver *canp,
+	    uint32_t can2sb,
+	    uint32_t num,
+	    const CANFilter *cfp)*/
+	canSTM32SetFilters(&CAND1, 0x0, 2, &f[0]);
+	canSTM32SetFilters(&CAND2, 0x0, 2, &f[0]);
+
 
 	// Even if CAN1 is not used in the project, CAN1 should be activated.
 	// Since CAN2 relies on the configuration of CAN1.
 	canStart(&CAND1, &cancfg);
 	canStart(&CAND2, &cancfg);
+
+
 
 	// Creates the serial thread.
 	chThdCreateStatic(

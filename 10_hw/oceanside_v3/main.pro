@@ -1,4 +1,4 @@
-update=2017년 07월 06일 (목) 오전 10시 44분 45초
+update=2017-08-15 오전 11:06:08
 version=1
 last_client=kicad
 [general]
