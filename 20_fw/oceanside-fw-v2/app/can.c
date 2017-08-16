@@ -102,13 +102,16 @@ void can_init(void)
         uint32_t register1, (Identifier)
         uint32_t register2  (Mask/Identifier)
     }*/
-	CANFilter f[2] = {
-	               {1, 1, 1, 0,
-	               set_can_eid_data(0x00000000),
-	               set_can_eid_data(0x00000000)},
-	               {2, 1, 1, 1,
-	               set_can_eid_data(0x00000004),
-	               set_can_eid_data(0x00000004)}
+	CANFilter f[3] = {
+	               {1, 0, 1, 0,
+	               set_can_eid_data(0x00000000), // target id
+	               set_can_eid_mask(0x00000fff)}, // bits interested
+	               {2, 0, 1, 1,
+	               set_can_eid_data(0x00000004), // target id
+	               set_can_eid_mask(0x0000000f)}, // bits interested
+	               {3, 1, 1, 1,
+	               set_can_eid_data(0x00000001), // target id
+	               set_can_eid_data(0x00000002)}, // target id
 	               };
 
     /*
@@ -117,8 +120,8 @@ void can_init(void)
 	    uint32_t can2sb,
 	    uint32_t num,
 	    const CANFilter *cfp)*/
-	canSTM32SetFilters(&CAND1, 0x0, 2, &f[0]);
-	canSTM32SetFilters(&CAND2, 0x0, 2, &f[0]);
+	canSTM32SetFilters(&CAND1, 0x0, 3, &f[0]);
+	canSTM32SetFilters(&CAND2, 0x0, 3, &f[0]);
 
 
 	// Even if CAN1 is not used in the project, CAN1 should be activated.
