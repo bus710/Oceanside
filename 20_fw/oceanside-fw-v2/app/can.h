@@ -10,6 +10,18 @@ void can_init(void);
 /*0b110 - Mask enable for EID/SID and DATA/RTR*/
 #define set_can_eid_mask(x) ((x << 3)|0b110)
 
+
+typedef struct CAN_BUFS {
+	bool ready;
+	bool tx_updated;
+	bool rx_updated;
+	uint16_t writer_loc;
+	uint8_t buf[256][13]; // time (1) + eid (4) + data (8)
+} CAN_BUF;
+
+extern CAN_BUF can_buf;
+
+
 #endif
 
 
@@ -26,7 +38,7 @@ F003 (50ms)
 - [3]       Remote Accelerator
 
 F004 (20ms)
-- [0]: 3..0 Engine Torque Mode
+- [0]:3..0 Engine Torque Mode
 - [1]       Driver's Demand Torque
 - [2]       Actual Engine Torque
 - [3..4]    Engine Speed

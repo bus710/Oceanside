@@ -1,0 +1,9 @@
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\bin\Debug\Sample01.exe.config
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\bin\Debug\Sample01.exe
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\bin\Debug\Sample01.pdb
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\bin\Debug\FTD2XX_NET.dll
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\bin\Debug\FTD2XX_NET.xml
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\obj\Debug\Sample01.csprojResolveAssemblyReference.cache
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\obj\Debug\Sample01.csproj.CoreCompileInputs.cache
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\obj\Debug\Sample01.exe
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample01\Sample01\obj\Debug\Sample01.pdb

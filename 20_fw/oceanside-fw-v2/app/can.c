@@ -14,7 +14,9 @@ struct can_instance {
 	CANDriver *canp;
 };
 
-static const struct can_instance can1 = { &CAND1 };
+CAN_BUF can_buf;
+
+//static const struct can_instance can1 = { &CAND1 };
 static const struct can_instance can2 = { &CAND2 };
 
 // Please refer to F446Rx's RM0390 section 30.9, "bxCAN"
@@ -46,9 +48,23 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 				CAN_ANY_MAILBOX,
 				&rxmsg,
 				TIME_IMMEDIATE) == MSG_OK){
-		    uint32_t e = rxmsg.EID;
-		    uint32_t a = rxmsg.data32[0];
-		    uint32_t b = rxmsg.data32[1];
+
+            //chMtxLock(&mtx_can); // shouldn't use mutex here.
+
+            can_buf.buf[can_buf.writer_loc][0] = 0x00; // type or time
+            can_buf.buf[can_buf.writer_loc][1] = (rxmsg.EID & 0xff000000) >> 24;
+            can_buf.buf[can_buf.writer_loc][2] = (rxmsg.EID & 0x00ff0000) >> 16;
+            can_buf.buf[can_buf.writer_loc][3] = (rxmsg.EID & 0x0000ff00) >> 8;
+            can_buf.buf[can_buf.writer_loc][4] = rxmsg.EID & 0x000000ff;
+
+		    for(int i=0; i<8; i++){
+              can_buf.buf[can_buf.writer_loc][i+5] = rxmsg.data8[i]; // 5, because of time and eid.
+		    }
+
+		    can_buf.writer_loc += 1;
+		    if(can_buf.writer_loc > 0x255){ can_buf.writer_loc = 0; }
+
+            //chMtxUnlock(&mtx_can); // shouldn't use mutex here.
 
 			chThdSleepMilliseconds(5);
 		}
@@ -82,6 +98,9 @@ static THD_FUNCTION(Thread_can2_tx, p) {
 
 void can_init(void)
 {
+
+    can_buf.writer_loc = 0;
+
 	// Setup CAN ports
 	palSetPadMode(GPIOB, 12, PAL_MODE_ALTERNATE(9) |
 						PAL_STM32_OTYPE_PUSHPULL |
@@ -105,11 +124,11 @@ void can_init(void)
 	CANFilter f[3] = {
 	               {1, 0, 1, 0,
 	               set_can_eid_data(0x00000000), // target id
-	               set_can_eid_mask(0x00000fff)}, // bits interested
-	               {2, 0, 1, 1,
+	               set_can_eid_mask(0x000000ff)}, // bits interested
+	               {2, 0, 1, 0,
 	               set_can_eid_data(0x00000004), // target id
 	               set_can_eid_mask(0x0000000f)}, // bits interested
-	               {3, 1, 1, 1,
+	               {3, 1, 1, 0,
 	               set_can_eid_data(0x00000001), // target id
 	               set_can_eid_data(0x00000002)}, // target id
 	               };

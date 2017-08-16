@@ -19,7 +19,7 @@ volatile uint8_t rx_cnt;
 static uint8_t tx_buf[UART_MESSAGE_LEN] = {0x00};
 static uint8_t rx_buf[UART_MESSAGE_LEN] = {0x00};
 
-UART_COMMAND_BUF uart_command_buf;
+UART_BUF uart_buf;
 
 static THD_WORKING_AREA(waThread_uart, 128);
 
@@ -111,11 +111,9 @@ static UARTConfig uart_cfg_1 = {
 static void uart_tx_message_init(void){
 	// Takes data from the shared memory from the app thread.
 	// And adds packet IDs
-	tx_buf[UART_PREAMBLE_0]	= 0xaa;
-	tx_buf[UART_PREAMBLE_1]	= 0xaa;
-	tx_buf[UART_PACKET_ID] = (packet_id & 0x00ff);
-	tx_buf[UART_ADDRESS] = 0x00;
-	tx_buf[UART_LEN]			= 0x00;
+	tx_buf[UART_PREAMBLE_0]	    = 0xaa;
+	tx_buf[UART_PREAMBLE_1]	    = 0xaa;
+	tx_buf[UART_ADDRESS]        = 0x00;
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
 		tx_buf[i] = 0x00;
@@ -126,23 +124,21 @@ static void uart_tx_message_init(void){
 
 static void uart_tx_message_checksum_gen(void){
 	// Generates the checksum.
-	tx_buf[UART_CHECKSUM] = tx_buf[UART_PREAMBLE_0];
+	tx_buf[UART_CHECKSUM]  = tx_buf[UART_PREAMBLE_0];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PREAMBLE_1];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_PACKET_ID];
 	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_ADDRESS];
-	tx_buf[UART_CHECKSUM] ^= tx_buf[UART_LEN];
 
 	for (int i=UART_PL_START; i<UART_PL_END+1; i++){
 		tx_buf[UART_CHECKSUM] ^= tx_buf[i];
 	}
 }
 
-static void buf_initialization(UART_COMMAND_BUF* buf_handler){
+static void buf_initialization(UART_BUF* buf_handler){
 	// Initializes a buffer in the shared space.
 	buf_handler->tx_updated = false;
 	buf_handler->rx_updated = false;
 	buf_handler->writer_loc = 0;
-	for (int i = 0; i < 128; i++) {
+	for (int i = 0; i < 256; i++) {
 		for (int j=0; j<SM_UART_MESSAGE_LEN; j++){
 			buf_handler->buf[i][j] = 0x00;
 		}
@@ -166,11 +162,11 @@ static THD_FUNCTION(Thread_uart, arg) {
 	chMtxObjectInit(&mtx_uart);
 
 	chMtxLock(&mtx_uart);
-	buf_initialization(&uart_command_buf);
+	buf_initialization(&uart_buf);
 	chMtxUnlock(&mtx_uart);
 
 	// UART ports and object initialization
-	palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // UART1 TX
+	palSetPadMode(GPIOA, 9,  PAL_MODE_ALTERNATE(7)); // UART1 TX
 	palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7)); // UART1 RX
 	uartStart(&UARTD1, &uart_cfg_1);
 
@@ -199,37 +195,38 @@ static THD_FUNCTION(Thread_uart, arg) {
 
 		// In order to check if the app thread requested sending packet out.
 		chMtxLock(&mtx_uart);
-		if ((uart_command_buf.tx_updated) && (tx_done)) {
+		if ((uart_buf.tx_updated) && (tx_done)) {
 
-			if (uart_command_buf.writer_loc < 128) {
+			if (uart_buf.writer_loc < 256) {
 
 				// Tx command packing
 				uart_tx_message_init();
 
-				tx_buf[UART_ADDRESS] = uart_command_buf.writer_loc;
-				tx_buf[UART_LEN] =
-						uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_LEN];
+				tx_buf[UART_ADDRESS] = uart_buf.writer_loc;
 
 				for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
 					tx_buf[UART_PL_START + i] =
-							uart_command_buf.buf[uart_command_buf.writer_loc][SM_UART_PL_START + i];
+							uart_buf.buf[uart_buf.writer_loc][SM_UART_PL_START + i];
 				}
 				uart_tx_message_checksum_gen();
 
 				tx_done = false;
 				uartStartSend(&UARTD1, UART_MESSAGE_LEN, tx_buf);
 
-				uart_command_buf.writer_loc += 1;
+				uart_buf.writer_loc += 1;
 
 			}
 			else {
 				// sent all already.
-				uart_command_buf.ready = true;
-				uart_command_buf.tx_updated = false;
+				uart_buf.ready = true;
+				uart_buf.tx_updated = false;
+				for(int j=0; j<256; j++){
+				  for(int i=0; i<SM_UART_MESSAGE_LEN; i++){
+                    uart_buf.buf[j][i] = 0;
+                  }
+				}
 			}
-
 		}
-
 
 		// =========================================
 		// Rx part
@@ -240,17 +237,15 @@ static THD_FUNCTION(Thread_uart, arg) {
 			rx_done = false;
 
 			// In order to store the received data to the shared memory space.
-			uint8_t addr = rx_buf[UART_ADDRESS];
+			uint16_t addr = rx_buf[UART_ADDRESS];
 
-			if(addr < 128){
-				uart_command_buf.buf[addr][SM_UART_LEN] = rx_buf[UART_LEN];
-
+			if(addr < 256){
 				for (int i = 0; i < UART_MESSAGE_LEN; i++) {
-					uart_command_buf.buf[addr][SM_UART_PL_START + i] = rx_buf[UART_PL_START + i];
+					uart_buf.buf[addr][SM_UART_PL_START + i] = rx_buf[UART_PL_START + i];
 				}
 			}
 
-			uart_command_buf.rx_updated = true;
+			uart_buf.rx_updated = true;
 
 			uartStartReceive(&UARTD1, UART_MESSAGE_LEN, rx_buf);
 		}

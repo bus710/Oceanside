@@ -78,7 +78,7 @@ enum app_info_order {
 // Each one has 16 bytes space so that the max length should be up to 16.
 
 #define DATA_STREAM_BASE_ADDR 	0
-#define DATA_STREAM_END_ADDR		DATA_STREAM_BASE_ADDR + 99
+#define DATA_STREAM_END_ADDR	DATA_STREAM_BASE_ADDR + 255
 
 void app_init(void);
 

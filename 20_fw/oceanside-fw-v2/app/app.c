@@ -8,6 +8,7 @@
 // Application headers
 #include "app.h"
 #include "uart.h"
+#include "can.h"
 
 
 static THD_WORKING_AREA(waThread_app, 128);
@@ -30,22 +31,43 @@ static THD_FUNCTION(Thread_app, arg) {
 			if (app_tick) {
 				app_tick = false;
 
+
+
 				chMtxLock(&mtx_uart);
 
-				if (uart_command_buf.ready == true) {
-					if (uart_command_buf.tx_updated == false) {
-						uart_command_buf.tx_updated = true;
-						uart_command_buf.writer_loc = 0;
+				if (uart_buf.ready == true) {
+					if (uart_buf.tx_updated == false) {
+						uart_buf.tx_updated = true;
+						uart_buf.writer_loc = 0;
 
 						// DATA STREAM - copy operation should be executed here.
-						for (int j = DATA_STREAM_BASE_ADDR; j<=DATA_STREAM_END_ADDR; j++) {
-							uart_command_buf.buf[j][SM_UART_LEN] = 16;
-							for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
-								uart_command_buf.buf[j][SM_UART_PL_START + i] =
-										0x00;
-							}
-						}
 
+
+                        if(can_buf.writer_loc > 0){
+
+                          //chMtxLock(&mtx_can);
+                          for (int j = 0; j<=can_buf.writer_loc; j++) {
+                              for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
+                                  uart_buf.buf[j][SM_UART_PL_START + i]
+                                                  = can_buf.buf[j][i];
+                                  can_buf.buf[j][i] = 0;
+                              }
+                          }
+
+                          can_buf.writer_loc = 0;
+                          can_buf.ready = true;
+                          //chMtxUnlock(&mtx_can);
+
+                        } else {
+                           for (int j = 0; j<=can_buf.writer_loc; j++) {
+                              for (int i = 0; i < UART_PAYLOAD_LEN; i++) {
+                                  uart_buf.buf[j][SM_UART_PL_START + i] = 0;
+                              }
+                          }
+                        }
+
+
+						/*
 						// APP INFO - copy operation should be executed here.
 						for (int j = APP_INFO_BASE_ADDR; j<=APP_INFO_END_ADDR; j++) {
 							uart_command_buf.buf[j][SM_UART_LEN] = 16;
@@ -67,12 +89,13 @@ static THD_FUNCTION(Thread_app, arg) {
 										sys_info[j - SYS_INFO_BASE_ADDR][i];
 							}
 						}
+						*/
 					}
 				}
 
 
-				if (uart_command_buf.rx_updated == true) {
-					uart_command_buf.rx_updated = false;
+				if (uart_buf.rx_updated == true) {
+					uart_buf.rx_updated = false;
 					// copy operation for parameter from odroid should be executed here.
 					// refer the buffer and copy to each local buffers for threads.
 				}
