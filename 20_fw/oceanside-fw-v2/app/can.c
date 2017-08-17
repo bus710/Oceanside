@@ -51,7 +51,7 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 
             //chMtxLock(&mtx_can); // shouldn't use mutex here.
 
-            can_buf.buf[can_buf.writer_loc][0] = 0x00; // type or time
+            can_buf.buf[can_buf.writer_loc][0] = 0xff; // type or time
             can_buf.buf[can_buf.writer_loc][1] = (rxmsg.EID & 0xff000000) >> 24;
             can_buf.buf[can_buf.writer_loc][2] = (rxmsg.EID & 0x00ff0000) >> 16;
             can_buf.buf[can_buf.writer_loc][3] = (rxmsg.EID & 0x0000ff00) >> 8;
@@ -66,7 +66,7 @@ static THD_FUNCTION(Thread_can2_rx, p) {
 
             //chMtxUnlock(&mtx_can); // shouldn't use mutex here.
 
-			chThdSleepMilliseconds(5);
+			//chThdSleepMilliseconds(1);
 		}
 	}
 	chEvtUnregister(&CAND2.rxfull_event, &el);
@@ -91,7 +91,7 @@ static THD_FUNCTION(Thread_can2_tx, p) {
 
 	while(true){
 		canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(20));
-		chThdSleepMilliseconds(500);
+		chThdSleepMilliseconds(1000);
 	}
 }
 
@@ -121,16 +121,28 @@ void can_init(void)
         uint32_t register1, (Identifier)
         uint32_t register2  (Mask/Identifier)
     }*/
-	CANFilter f[3] = {
+	CANFilter f[7] = {
 	               {1, 0, 1, 0,
-	               set_can_eid_data(0x00000000), // target id
-	               set_can_eid_mask(0x000000ff)}, // bits interested
+	               set_can_eid_data(0x00F00300), // target id
+	               set_can_eid_mask(0x00F00F00)}, // bits interested
 	               {2, 0, 1, 0,
-	               set_can_eid_data(0x00000004), // target id
+	               set_can_eid_data(0x00000002), // target id
 	               set_can_eid_mask(0x0000000f)}, // bits interested
-	               {3, 1, 1, 0,
-	               set_can_eid_data(0x00000001), // target id
-	               set_can_eid_data(0x00000002)}, // target id
+	               {3, 0, 1, 0,
+	               set_can_eid_data(0x00000003), // target id
+	               set_can_eid_mask(0x0000000f)}, // bits interested
+	               {4, 0, 1, 0,
+	               set_can_eid_data(0x00000004), // target id
+	               set_can_eid_mask(0x000000ff)}, // bits interested
+	               {5, 0, 1, 0,
+	               set_can_eid_data(0x00000005), // target id
+	               set_can_eid_mask(0x0000000f)}, // bits interested
+	               {6, 0, 1, 0,
+	               set_can_eid_data(0x00000006), // target id
+	               set_can_eid_mask(0x0000000f)}, // bits interested
+	               {7, 1, 1, 0,
+	               set_can_eid_data(0x00000007), // target id
+	               set_can_eid_data(0x00000008)}, // target id
 	               };
 
     /*
@@ -139,8 +151,8 @@ void can_init(void)
 	    uint32_t can2sb,
 	    uint32_t num,
 	    const CANFilter *cfp)*/
-	canSTM32SetFilters(&CAND1, 0x0, 3, &f[0]);
-	canSTM32SetFilters(&CAND2, 0x0, 3, &f[0]);
+	canSTM32SetFilters(&CAND1, 0x0, 7, &f[0]);
+	canSTM32SetFilters(&CAND2, 0x0, 7, &f[0]);
 
 
 	// Even if CAN1 is not used in the project, CAN1 should be activated.

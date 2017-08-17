@@ -4,7 +4,7 @@
 
 // Message structure for messages sent out of the device
 
-#define UART_MESSAGE_LEN			17
+#define UART_MESSAGE_LEN			16
 #define UART_PREAMBLE_0				0
 #define UART_PREAMBLE_1				1
 #define UART_ADDRESS				2

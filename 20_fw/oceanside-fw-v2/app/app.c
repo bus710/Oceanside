@@ -26,7 +26,7 @@ static THD_FUNCTION(Thread_app, arg) {
 
 		while (chVTIsSystemTimeWithin(start, end)) {
 
-			chThdSleepMilliseconds(20);
+			chThdSleepMilliseconds(200);
 
 			if (app_tick) {
 				app_tick = false;

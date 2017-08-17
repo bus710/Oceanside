@@ -1,0 +1,12 @@
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\bin\Debug\Sample02_winform.exe.config
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\bin\Debug\Sample02_winform.exe
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\bin\Debug\Sample02_winform.pdb
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.csprojResolveAssemblyReference.cache
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.Properties.Resources.resources
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.csproj.GenerateResource.Cache
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.csproj.CoreCompileInputs.cache
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.exe
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.pdb
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\bin\Debug\FTD2XX_NET.dll
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\bin\Debug\FTD2XX_NET.xml
+C:\Users\akudo\01_repo\Oceanside\30_sw\Sample02_winform\Sample02_winform\obj\Debug\Sample02_winform.Form1.resources
