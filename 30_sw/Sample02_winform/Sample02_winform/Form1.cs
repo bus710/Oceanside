@@ -243,7 +243,7 @@ namespace Sample02_winform
                 // A loop to copy serial data to 2d array.
                 UInt32 loc;
                 UInt32 addr = 0;
-                for (loc = 0; loc < len2; loc++)
+                for (loc = 0; loc < len2-2; loc++)
                 {
                     if ((data[loc] == 0xaa) && (data[loc + 1] == 0xaa))
                     {
